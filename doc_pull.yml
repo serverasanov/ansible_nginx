@@ -1,0 +1,31 @@
+---
+- name: up nginx
+  hosts: all
+  become: yes
+
+  vars:
+   source_html_file: ./index.html
+   source_Dockerfile: ./Dockerfile
+   destin_html_file: /home
+   destin_Dockerfile: /home
+
+  tasks:
+  - name: Copy html_file in server
+    copy: src={{ source_html_file }} dest={{ destin_html_file }} mode=0777
+
+  - name: Copy Dockerfile in server
+    copy: src={{ source_Dockerfile }} dest={{ destin_Dockerfile }} mode=0777
+
+
+  - name: build image
+    community.docker.docker_image_build:
+      name: nginx
+      path: /home
+
+  - name: start container
+    community.docker.docker_container:
+      name: nginx
+      image: nginx
+      state: started
+      ports: 80:80
+
